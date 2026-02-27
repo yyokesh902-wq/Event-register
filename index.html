@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event registration · styled (Assignment 2)</title>
+  <!-- external stylesheet: style.css (embedded for single-file demo, but perfectly separable) -->
+  <style>
+    /* ========== GLOBAL STYLING ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #eef5f9 0%, #dae8f0 100%);
+      font-family: 'Segoe UI', Roboto, Verdana, Arial, sans-serif;
+      line-height: 1.5;
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+      color: #1e3b4c;
+    }
+
+    /* main card – form container (also wraps whole content) */
+    .registration-card {
+      max-width: 1200px;
+      width: 100%;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(160, 195, 215, 0.5);
+      padding: 2.2rem 2.5rem;
+      border-radius: 42px;
+      box-shadow: 0 30px 45px -20px #2c5a70, 0 8px 20px rgba(0,40,60,0.15);
+    }
+
+    /* ========== TITLE & DESCRIPTION ========== */
+    h1 {
+      font-size: 3rem;
+      font-weight: 650;
+      background: linear-gradient(135deg, #0f3b4f, #21647e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+      border-left: 8px solid #308098;
+      padding-left: 1.5rem;
+    }
+
+    .event-description {
+      font-size: 1.2rem;
+      line-height: 1.7;
+      color: #214f62;
+      margin: 0 0 2rem 0;
+      padding-bottom: 0.75rem;
+      border-bottom: 3px dashed #9bc6d9;
+      font-weight: 400;
+    }
+
+    /* ========== EVENT INFO SECTION (list style with grid) ========== */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 1rem;
+      background: #ffffffd9;
+      border: 2px solid #cae1ed;
+      border-radius: 50px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 6px 12px #c4d7e4;
+      transition: all 0.2s;
+    }
+    .info-grid:hover {
+      border-color: #4f98b5;
+      box-shadow: 0 8px 18px #aac6db;
+    }
+    .info-item {
+      text-align: left;
+      padding: 0.25rem 0.75rem;
+      background: #f4fafd;
+      border-radius: 50px;
+    }
+    .info-tag {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #0a5068;
+      letter-spacing: 0.04em;
+    }
+    .info-value {
+      font-size: 1.2rem;
+      font-weight: 550;
+      color: #083544;
+    }
+
+    /* ========== FORM ========== */
+    form {
+      margin: 1.8rem 0 0;
+    }
+
+    /* fieldset & legend styling */
+    fieldset {
+      border: 2px solid #b9d7ea;
+      border-radius: 32px;
+      padding: 1.8rem 2.2rem;
+      margin-bottom: 2rem;
+      background: #ffffffc9;
+      box-shadow: inset 0 2px 6px #dbeef8;
+    }
+
+    legend {
+      background: #ddeeff;
+      font-weight: 700;
+      font-size: 1.4rem;
+      color: #0f4155;
+      padding: 0.4rem 2rem;
+      border-radius: 60px;
+      border: 2px solid #9ac2d9;
+      margin-left: 0.5rem;
+      box-shadow: 0 4px 10px #b1cfdf;
+    }
+
+    /* row & spacing */
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem 2rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .input-group {
+      flex: 1 1 220px;
+      min-width: 200px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #1b4f64;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* ========== UNIFORM INPUTS ========== */
+    input:not([type="radio"]):not([type="checkbox"]):not([type="file"]),
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.8rem 1.2rem;
+      border: 2px solid #c2d9e8;
+      border-radius: 36px;
+      font-size: 0.95rem;
+      background: #ffffff;
+      transition: all 0.2s;
+      margin: 0;
+      box-shadow: 0 2px 6px #e2eef8 inset;
+    }
+
+    /* dropdown match */
+    select {
+      appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2330778f" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1.2rem;
+    }
+
+    /* textarea */
+    textarea {
+      border-radius: 28px;
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    /* file input align */
+    input[type="file"] {
+      padding: 0.5rem 0.8rem;
+      border: 2px dashed #8fb9cf;
+      background: #f1f9ff;
+      border-radius: 40px;
+      width: 100%;
+    }
+
+    /* radio / checkbox spacing */
+    .radio-group, .checkbox-group {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      flex-wrap: wrap;
+      background: #ecf7fc;
+      padding: 0.8rem 1.5rem;
+      border-radius: 60px;
+      border: 1px solid #bed9ec;
+    }
+    .radio-group label, .checkbox-group label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 400;
+      margin-bottom: 0;
+    }
+    input[type="radio"], input[type="checkbox"] {
+      width: 1.2rem;
+      height: 1.2rem;
+      accent-color: #1c7e9a;
+      margin: 0;
+    }
+
+    /* focus effect */
+    input:focus, select:focus, textarea:focus {
+      border-color: #308fb0;
+      outline: none;
+      box-shadow: 0 0 0 5px rgba(53, 142, 177, 0.2), 0 2px 8px #b3d8ec;
+    }
+
+    /* ========== BUTTONS ========== */
+    .action-buttons {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin: 2rem 0 1.2rem;
+    }
+
+    .btn {
+      border: none;
+      padding: 1rem 2.8rem;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.2s ease-in-out;
+      border: 2px solid transparent;
+      box-shadow: 0 8px 14px rgba(20, 67, 90, 0.25);
+      letter-spacing: 0.02em;
+    }
+
+    .btn-primary {
+      background: #1f6d89;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #0d4b63;
+      transform: translateY(-3px);
+      box-shadow: 0 15px 20px #1f5d7a;
+      border-color: #c7e3f0;
+    }
+
+    .btn-reset {
+      background: #edf7fc;
+      color: #164f67;
+      border: 2px solid #b1d2e8;
+    }
+    .btn-reset:hover {
+      background: #d7ecf7;
+      transform: scale(1.02);
+      box-shadow: 0 8px 18px #a3c6dd;
+    }
+
+    /* ========== TABLE (participants) ========== */
+    .table-section {
+      margin: 3rem 0 2rem;
+    }
+
+    .table-section h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #083b4e;
+      border-bottom: 5px dotted #a1c9e3;
+      padding-bottom: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .participants-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px #bed2e3;
+      background: white;
+    }
+
+    .participants-table th {
+      background: #275e77;
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      letter-spacing: 0.06em;
+      padding: 1.2rem 1rem;
+      text-align: left;
+    }
+
+    .participants-table td {
+      padding: 1rem 1rem;
+      border-bottom: 1px solid #cbdeec;
+      color: #103f50;
+    }
+
+    /* zebra stripes */
+    .participants-table tbody tr:nth-child(even) {
+      background-color: #f0f9ff;
+    }
+
+    .participants-table tbody tr:hover {
+      background-color: #d5ecf7;
+      transition: 0.1s;
+      cursor: default;
+    }
+
+    /* ========== DECLARATION CHECKBOX ========== */
+    .confirm-box {
+      background: #e2f0f9;
+      padding: 0.9rem 2.2rem;
+      border-radius: 60px;
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      border: 2px solid #9fc9e0;
+      margin: 0.5rem 0 0.8rem;
+      font-size: 0.95rem; /* slightly smaller emphasis */
+    }
+    .confirm-box label {
+      margin-bottom: 0;
+      font-weight: 500;
+    }
+
+    /* ========== FOOTER ========== */
+    footer {
+      background: #1d4f63;  /* different from main gradient */
+      color: #f0f9ff;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 2.5rem;
+      border-radius: 60px;
+      margin-top: 3rem;  /* top margin separation */
+      font-size: 0.95rem;  /* smaller */
+      text-align: center;
+      border: 1px solid #7cb1cc;
+      box-shadow: 0 6px 14px #aac3d8;
+    }
+
+    .footer-contact span {
+      font-weight: 600;
+      color: #ffefcf;
+    }
+
+    .copyright {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    /* small extra */
+    .small-note {
+      color: #236277;
+    }
+    hr {
+      display: none;
+    }
+  </style>
+  <!-- JavaScript will be placed below (also separate file) -->
+</head>
+<body>
+<div class="registration-card">
+  <!-- EVENT TITLE AND DESCRIPTION -->
+  <h1>⚡ InnovateFront · 2026 Workshop</h1>
+  <div class="event-description">
+    A hands‑on session for builders — design thinking, rapid prototyping & collaboration. 
+    Open to students, developers, and creators.
+  </div>
+
+  <!-- EVENT INFO SECTION (BORDER, BACKGROUND, HOVER) -->
+  <div class="info-grid">
+    <div class="info-item"><span class="info-tag">📅 Event Date</span><span class="info-value">Saturday, 18 April 2026</span></div>
+    <div class="info-item"><span class="info-tag">⏰ Time</span><span class="info-value">10:00 AM – 4:00 PM (IST)</span></div>
+    <div class="info-item"><span class="info-tag">📍 Venue</span><span class="info-value">CIVIC HALL · Lab 3, Tech Park</span></div>
+    <div class="info-item"><span class="info-tag">🧑‍💼 Organizer</span><span class="info-value">Code Campus Club</span></div>
+  </div>
+
+  <!-- REGISTRATION FORM – with card styling (already inside .registration-card) -->
+  <form id="registrationForm" onsubmit="return false;"> <!-- no real submit, level-2 keeps static -->
+    <!-- PERSONAL INFO FIELDSET -->
+    <fieldset>
+      <legend>🧑 Personal Information</legend>
+      <div class="form-row">
+        <div class="input-group"><label>Full name *</label><input type="text" placeholder="e.g., Priya Sharma" id="fullName"></div>
+        <div class="input-group"><label>Email address *</label><input type="email" placeholder="priya@example.com" id="email"></div>
+      </div>
+      <div class="form-row">
+        <div class="input-group"><label>Phone number *</label><input type="tel" placeholder="98765 43210" id="phone"></div>
+        <div class="input-group"><label>Date of birth</label><input type="date" id="dob"></div>
+      </div>
+      <div class="form-row">
+        <div class="input-group">
+          <label>Gender</label>
+          <div class="radio-group">
+            <label><input type="radio" name="gender" value="Female"> Female</label>
+            <label><input type="radio" name="gender" value="Male"> Male</label>
+            <label><input type="radio" name="gender" value="Other"> Other</label>
+            <label><input type="radio" name="gender" value="Prefer not to say" checked> Prefer not</label>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- EVENT SELECTION FIELDSET -->
+    <fieldset>
+      <legend>🎯 Event & participation</legend>
+      <div class="form-row">
+        <div class="input-group">
+          <label>Select workshop track *</label>
+          <select id="eventSelect">
+            <option value="Frontend essentials">Frontend essentials (HTML/CSS/JS)</option>
+            <option value="UI/UX mini-hack">UI/UX mini‑hack</option>
+            <option value="AI for interfaces">AI for interfaces</option>
+            <option value="Career & portfolio">Career & portfolio</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Mode of participation</label>
+          <div class="radio-group">
+            <label><input type="radio" name="mode" value="Online" checked> Online</label>
+            <label><input type="radio" name="mode" value="Offline"> Offline (onsite)</label>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- ADDITIONAL DETAILS FIELDSET -->
+    <fieldset>
+      <legend>📋 Additional info</legend>
+      <div class="form-row">
+        <div class="input-group"><label>College / Company</label><input type="text" placeholder="e.g., MIT or Self-employed" id="organization"></div>
+        <div class="input-group"><label>Upload ID proof (optional)</label><input type="file" id="idFile" accept=".pdf,.jpg,.png"></div>
+      </div>
+      <div class="form-row">
+        <div class="input-group" style="flex:2;">
+          <label>Comments / expectations</label>
+          <textarea rows="2" placeholder="What do you hope to learn? ..." id="comments"></textarea>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- DECLARATION CHECKBOX (spacing above) -->
+    <div class="confirm-box">
+      <input type="checkbox" id="confirmCheck" checked> 
+      <label for="confirmCheck">✅ I confirm that the above details are correct.</label>
+    </div>
+
+    <!-- BUTTONS (styled with hover, shadow, transition) -->
+    <div class="action-buttons">
+      <button type="button" class="btn btn-primary" id="fakeSubmit">Submit registration</button>
+      <button type="reset" class="btn btn-reset">Reset form</button>
+    </div>
+    <div class="small-note">* Assignment 2 – fully styled, JavaScript only for preview (static table).</div>
+  </form>
+
+  <!-- PARTICIPANTS TABLE (static, zebra stripes, hover) -->
+  <div class="table-section">
+    <h2>📋 Registered participants (sample)</h2>
+    <table class="participants-table" id="participantTable">
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Event</th><th>Mode</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Rahul Mehta</td><td>rahul.m@example.com</td><td>9988776655</td><td>Frontend essentials</td><td>Online</td></tr>
+        <tr><td>Anjali Krishnan</td><td>anjali.k@college.edu</td><td>9123456780</td><td>UI/UX mini‑hack</td><td>Offline</td></tr>
+        <tr><td>Dev Patel</td><td>dev.p@dev.co</td><td>8877665544</td><td>AI for interfaces</td><td>Online</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FOOTER (different background, centered, smaller) -->
+  <footer>
+    <div class="footer-contact"><span>📧 help@innovatefront.dev</span> &nbsp; | &nbsp; <span>📞 +91 80 2347 8900</span> (help desk)</div>
+    <div class="copyright">© 2026 InnovateFront · assignment demo</div>
+  </footer>
+</div>
+
+<!-- ========== EXTERNAL JAVASCRIPT (style is separate, but for demo we place here) ========== -->
+<script>
+  (function() {
+    // Get elements
+    const submitBtn = document.getElementById('fakeSubmit');
+    const confirmChk = document.getElementById('confirmCheck');
+    const form = document.getElementById('registrationForm');
+
+    // Simple interactive preview (keeps static table, but shows alert with data)
+    // This does NOT modify the table – preserves static nature for assignment 2.
+    submitBtn.addEventListener('click', function(e) {
+      if (!confirmChk.checked) {
+        alert('Please confirm the details using the declaration checkbox.');
+        return;
+      }
+
+      const name = document.getElementById('fullName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+
+      if (!name || !email || !phone) {
+        alert('Name, email and phone are required (basic validation).');
+        return;
+      }
+
+      // just a styled alert to show that styling & js coexist – table unchanged
+      alert(`✨ (Styled) Registration preview — In level-2, table stays static.\n\nSubmitted data:\nName: ${name}\nEmail: ${email}\nEvent: ${document.getElementById('eventSelect').value}`);
+      
+      // log to console
+      console.log('Assignment 2 - form data:', {
+        name, email, phone,
+        gender: document.querySelector('input[name="gender"]:checked')?.value,
+        event: document.getElementById('eventSelect').value,
+        mode: document.querySelector('input[name="mode"]:checked')?.value,
+      });
+    });
+
+    // Reset event (just to log, native reset works)
+    form.addEventListener('reset', function() {
+      setTimeout(() => console.log('Form reset (native)'), 10);
+    });
+
+  })();
+</script>
+
+<!-- 
+  External style.css would contain exactly the same <style> block content.
+  External script.js would contain the above <script> content.
+  For deliverable folder structure:
+  - index.html
+  - style.css
+  - script.js
+  - screenshots/ (folder with .png files)
+-->
+</body>
+</html>
